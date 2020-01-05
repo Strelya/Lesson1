@@ -1,0 +1,51 @@
+version: "3.7"
+services:
+  app:
+    build: .
+    image: "php:7.4.1-apache"
+    container_name: "app"
+    ports:
+      - "90:80"
+    volumes:
+      - .:/src/app
+    depends_on:
+      - db
+    links:
+      - db
+
+  db:
+    image: "mysql:5.7"
+    command: --explicit_defaults_for_timestamp
+    #command: --default-authentication-plugin=mysql_native_password
+    container_name: "db"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: qwerty7
+      MYSQL_DATABASE: sandbox
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./.docker/mysql:/var/lib/mysql
+    #volumes:
+      #- my-datavolume:/var/lib/mysql
+
+  phpmyadmin:
+    image: "phpmyadmin/phpmyadmin:4.9.1"
+    container_name: "phpmyadmin"
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - .docker/sessions
+    depends_on:
+      - db
+    links:
+      - db
+
+#volumes:
+ # my-datavolume:
